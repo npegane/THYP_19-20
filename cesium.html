@@ -83,49 +83,65 @@
             var entities = data.entities.values;
             // console.log(entities);
             entities.forEach(entity => {
-                var name = entity.name;
-                var color = colorHash[name];
-                // if (!color) {
-                    color = Cesium.Color.fromRandom({
-                        alpha : 0.5
-                    });
-                    colorHash[name] = color;
-                // }
+              if(entity.properties.name == "France"){
+                var color = Cesium.Color.DARKMAGENTA 
                 entity.polygon.material = color;
-                entity.polygon.outline = false;
-                if (!entityLabelCollInd[name]) {
-
-                    labelEntity = {
-                        name: (name + "_label"),
-
-                        label: {
-                            text: name + "",
-                            font: '14px Arial',
-                            outlineWidth: 0,
-                            fillColor: Cesium.Color.WHITE,
-                            verticalOrigin: Cesium.VerticalOrigin.TOP,
-                            show: true,
-                            pixelOffset: new Cesium.Cartesian2(-10.0, -10.0)
-                            // translucencyByDistance: new Cesium.NearFarScalar(10.0e2, 1.0, 18.0e6, 0)
-                            //pixelOffsetScaleByDistance: new Cesium.NearFarScalar(1.5e2, 0.0, 8.0e6, 10.0)
-                        }
-                    };
-
-                    // get the state entity's polygon position
-                    positions = entity.polygon.hierarchy['_value'].positions;
-                    center = Cesium.BoundingSphere.fromPoints(positions).center;
-
-                    // set the new label according to the state position
-                    // labelEntity.position = new Cesium.ConstantPositionProperty(center);
-                    labelEntity.position = new Cesium.Cartesian3(center.x, center.y, center.z += 100000);
-                    entity.polygon.extrudedHeight = entity.properties.visites * 100000.0;
-                    // store the new entity data
-                    entityLabelColl.push(labelEntity);
-                    entityLabelCollInd[name] = labelEntity;
-                }
+                entity.polygon.extrudedHeight = 100;
+              } else {
+                // var alpha = ( entity.properties.visites/100 ) * 3000 > 255? 255: ( entity.properties.visites/100 ) * 3000;
+                console.log("ALPHA", alpha, entity.properties.name);
+                var alpha = 175;
                 
-                
-                console.log(entity);
+                var color = Cesium.Color.fromBytes(76, 191, 214, alpha);
+                entity.polygon.material = color;
+                entity.polygon.extrudedHeight = entity.properties.visites * 100000.0;
+              }
+              var name = entity.name;
+             
+              
+              // var color = colorHash[name];
+              /*if (!color) {
+                  color = Cesium.Color.fromRandom({
+                      alpha : ( entity.properties.visites/100 ) * 10 > 1? 1: ( entity.properties.visites/100 ) * 10 
+                  });
+                  colorHash[name] = color;
+              }*/
+              
+              entity.polygon.outline = false;
+              
+              if (!entityLabelCollInd[name]) {
+
+                  labelEntity = {
+                      name: (name + "_label"),
+
+                      label: {
+                          text: name + "",
+                          font: '14px Arial',
+                          outlineWidth: 0,
+                          fillColor: Cesium.Color.WHITE,
+                          verticalOrigin: Cesium.VerticalOrigin.TOP,
+                          show: true,
+                          pixelOffset: new Cesium.Cartesian2(-10.0, -10.0)
+                          // translucencyByDistance: new Cesium.NearFarScalar(10.0e2, 1.0, 18.0e6, 0)
+                          //pixelOffsetScaleByDistance: new Cesium.NearFarScalar(1.5e2, 0.0, 8.0e6, 10.0)
+                      }
+                  };
+
+                  // get the state entity's polygon position
+                  positions = entity.polygon.hierarchy['_value'].positions;
+                  center = Cesium.BoundingSphere.fromPoints(positions).center;
+
+                  // set the new label according to the state position
+                  // labelEntity.position = new Cesium.ConstantPositionProperty(center);
+                  labelEntity.position = new Cesium.Cartesian3(center.x, center.y, center.z += 100000);
+                  
+                  // store the new entity data
+                  entityLabelColl.push(labelEntity);
+                  entityLabelCollInd[name] = labelEntity;
+              }
+              
+              
+                // console.log(entity);
             });
             entityLabelColl.forEach(function (item) {
                 data.entities.add(item);                
