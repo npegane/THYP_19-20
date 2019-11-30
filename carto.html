@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creative CV</title>
+    <meta name="description" content="Creative CV is a HTML resume template for professionals. Built with Bootstrap 4, Now UI Kit and FontAwesome, this modern and responsive design template is perfect to showcase your portfolio, skils and experience."/>
+    <link rel="stylesheet" href="js/plugins/leaflet/leaflet.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" /> -->
+    <!-- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>     -->
+    <!-- <script src="js/plugins/leaflet/Leaflet.CountrySelect.js"></script> -->    
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/aos.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/main.css" rel="stylesheet">
+    <script src="js/plugins/leaflet/leaflet.js"></script>
+    <script src="js/plugins/Leaflet.CountrySelect.js"></script>
+    <script src="js/countries.geo.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="js/core/jquery.3.2.1.min.js"></script>
+    <script src="js/core/popper.min.js"></script>
+    <script src="js/core/bootstrap.min.js"></script>
+    <script src="js/now-ui-kit.js?v=1.1.0"></script>
+    <script src="js/aos.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src='//d3js.org/d3.v5.min.js'></script>
+    <style>
+        #carte2d { 
+            height: 400px; 
+            width: 840px;
+        }        
+    </style>
+  </head>
+  <body id="top">
+    <header>
+      <div class="profile-page sidebar-collapse">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-transparent bg-primary" color-on-scroll="400">
+          <div class="container">
+            <div class="navbar-translate">
+              <a class="btn btn-primary smooth-scroll mr-2" href="./statetu.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">Statistiques</a>
+              <a class="btn btn-primary smooth-scroll mr-2" href="./cv/template/index.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">CV</a>
+              <a class="btn btn-primary smooth-scroll mr-2" href="./cesium.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">Carto 3D</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <div class="page-content">
+      <div class="profile-page">
+        <div class="wrapper">
+          <div class="page-header page-header-small" filter-color="green">
+            <div  class="page-header-image" data-parallax="true" style="background-image: url('images/cc-bg-1.jpg');"></div>
+            <div class="container">
+              <div class="content-center" style="top:60%">
+                <div style="border: dotted #51c5f2 5px">
+                    <div id="carte2d"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>        
+    </div>
+    <footer class="footer">
+    </footer>
+    
+  </body>
+  <script>
+        var visitedCountry = {
+            "India": 10, 
+            "France":20,
+            "United Arab Emirates":2,
+            "Thailand" : 1,
+            "Netherlands" : 1,
+            "Belgium": 2,
+            "Spain": 4,
+            "United Kingdom": 1
+        };
+
+        var colorScale = d3.scaleSequential()
+            .domain([0, 100])
+            .interpolator(d3['interpolatePlasma']);
+
+        var defColor = function(country){
+            if(visitedCountry[country]){
+                return colorScale(visitedCountry[country]);
+            } else {
+                return "grey";
+            }
+        }
+
+        function style(feature) {
+            return {
+                //fillColor: colorScale(feature.properties.density),
+                fillColor: defColor(feature.properties.name),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        var map = L.map('carte2d').setView([0, 0], 1);
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 650;
+        map.getPane('labels').style.pointerEvents = 'none';
+        var positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB'
+        }).addTo(map);
+
+        var positronLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB',
+            pane: 'labels'
+        }).addTo(map);
+
+        var geojson = L.geoJson(statesData,  {style: style}).addTo(map);
+
+        geojson.eachLayer(function (layer) {
+            layer.bindPopup(layer.feature.properties.name);
+        });
+
+        map.fitBounds(geojson.getBounds());
+    </script>
+</html>

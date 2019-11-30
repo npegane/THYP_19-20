@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creative CV</title>
+    <meta name="description" content="Creative CV is a HTML resume template for professionals. Built with Bootstrap 4, Now UI Kit and FontAwesome, this modern and responsive design template is perfect to showcase your portfolio, skils and experience."/>
+    <link rel="stylesheet" href="js/plugins/leaflet/leaflet.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" /> -->
+    <!-- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>     -->
+    <!-- <script src="js/plugins/leaflet/Leaflet.CountrySelect.js"></script> -->    
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/aos.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/main.css" rel="stylesheet">
+    <!-- <script src="js/plugins/leaflet/leaflet.js"></script> -->
+    <!-- <script src="js/plugins/Leaflet.CountrySelect.js"></script> -->
+    <!-- <script src="js/countries.geo.js"></script> -->
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.63.1/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.63.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="js/core/jquery.3.2.1.min.js"></script>
+    <script src="js/core/popper.min.js"></script>
+    <script src="js/core/bootstrap.min.js"></script>
+    <script src="js/now-ui-kit.js?v=1.1.0"></script>
+    <script src="js/aos.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src='//d3js.org/d3.v5.min.js'></script>
+    <style>
+        #carte2d { 
+            height: 400px; 
+            width: 840px;
+        }        
+    </style>
+  </head>
+  <body id="top">
+    <header>
+      <div class="profile-page sidebar-collapse">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-transparent bg-primary" color-on-scroll="400">
+          <div class="container">
+            <div class="navbar-translate">
+              <a class="btn btn-primary smooth-scroll mr-2" href="./statetu.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">Statistiques</a>
+              <a class="btn btn-primary smooth-scroll mr-2" href="./cv/template/index.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">CV</a>
+              <a class="btn btn-primary smooth-scroll mr-2" href="./carto.html" data-aos="zoom-in" data-aos-anchor="data-aos-anchor">Carto 2D</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <div class="page-content">
+      <div class="profile-page">
+        <div class="wrapper">
+          <div class="page-header page-header-small" filter-color="green">
+            <div  class="page-header-image" data-parallax="true" style="background-image: url('images/cc-bg-1.jpg');"></div>
+            <div class="container">
+              <div class="content-center" style="top:60%">
+                <div style="border: dotted #51c5f2 5px">
+                    <div id="cesiumContainer" style="width: 840px; height:400px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+    </footer>
+    <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5YWZmODQyNy02MDQ3LTQzMjAtODc0Zi05NTk0MTE2MDZmN2YiLCJpZCI6MTkxODgsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NzUxMDgxMzl9.BGlb0-DQJJPJQa_GZjtTNse8LBC4z8-WLi5UvGBPoXY';
+        var viewer = new Cesium.Viewer('cesiumContainer');
+        Cesium.Math.setRandomNumberSeed(0);
+        var colorHash = {}, labelEntity = "", positions, i = 0, entityLabelColl = [], entityLabelCollInd = {};
+        var promise = Cesium.GeoJsonDataSource.load('js/visited_countries.json');        
+        promise.then(function(data){
+            console.log(data);
+            viewer.dataSources.add(data, {
+                stroke: Cesium.Color.BLUEVIOLET,
+                fill: Cesium.Color.BLUEVIOLET.withAlpha(0.5),
+                strokeWidth: 3
+            });
+            var entities = data.entities.values;
+            // console.log(entities);
+            entities.forEach(entity => {
+                var name = entity.name;
+                var color = colorHash[name];
+                // if (!color) {
+                    color = Cesium.Color.fromRandom({
+                        alpha : 0.5
+                    });
+                    colorHash[name] = color;
+                // }
+                entity.polygon.material = color;
+                entity.polygon.outline = false;
+                if (!entityLabelCollInd[name]) {
+
+                    labelEntity = {
+                        name: (name + "_label"),
+
+                        label: {
+                            text: name + "",
+                            font: '14px Arial',
+                            outlineWidth: 0,
+                            fillColor: Cesium.Color.WHITE,
+                            verticalOrigin: Cesium.VerticalOrigin.TOP,
+                            show: true,
+                            pixelOffset: new Cesium.Cartesian2(-10.0, -10.0)
+                            // translucencyByDistance: new Cesium.NearFarScalar(10.0e2, 1.0, 18.0e6, 0)
+                            //pixelOffsetScaleByDistance: new Cesium.NearFarScalar(1.5e2, 0.0, 8.0e6, 10.0)
+                        }
+                    };
+
+                    // get the state entity's polygon position
+                    positions = entity.polygon.hierarchy['_value'].positions;
+                    center = Cesium.BoundingSphere.fromPoints(positions).center;
+
+                    // set the new label according to the state position
+                    // labelEntity.position = new Cesium.ConstantPositionProperty(center);
+                    labelEntity.position = new Cesium.Cartesian3(center.x, center.y, center.z += 100000);
+                    entity.polygon.extrudedHeight = entity.properties.visites * 100000.0;
+                    // store the new entity data
+                    entityLabelColl.push(labelEntity);
+                    entityLabelCollInd[name] = labelEntity;
+                }
+                
+                
+                console.log(entity);
+            });
+            entityLabelColl.forEach(function (item) {
+                data.entities.add(item);                
+            });
+            // console.log(entityLabelColl, entityLabelCollInd);
+        });
+        /*viewer.dataSources.add(Cesium.GeoJsonDataSource.load('js/visited_countries.json',{
+            stroke: Cesium.Color.BLUEVIOLET,
+            fill: Cesium.Color.BLUEVIOLET.withAlpha(0.5),
+            strokeWidth: 3
+        }));*/
+    </script>
+  </body>
+</html>
